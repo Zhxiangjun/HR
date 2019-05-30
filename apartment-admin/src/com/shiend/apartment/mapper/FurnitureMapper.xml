@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.shiend.apartment.mapper.FurnitureMapper">
+	<resultMap id="FurnitureVoMap" type="com.shiend.apartment.vo.FurnitureVo" >
+   	 <id column="furniture_id" property="furnitureId"  />
+   	 <result column="room_id" property="roomId"  />
+   	 <result column="apartment_id" property="apartmentId"  />
+   	 <result column="public_flag" property="publicFlag"  />
+  	 <!-- 集合的封装 -->
+  	 	<collection property="rooms" ofType="com.shiend.apartment.pojo.Room">
+			<id column="room_id" property="roomId"/>
+			<result column="room_name" property="roomName"/>
+			<result column="room_area" property="roomArea"/>
+		</collection>
+		<collection property="apartments" ofType="com.shiend.apartment.pojo.Apartment">
+			<id column="apartment_id" property="apartmentId"/>
+			<result column="member_id" property="memberId"/>
+			<result column="rent_type" property="rentType"/>
+			<result column="area" property="area"/>
+		</collection>
+		<collection property="members" ofType="com.shiend.apartment.pojo.Member">
+			<id column="member_id" property="memberId"/>
+			<result column="realname" property="realname"/>
+		</collection>
+ 	</resultMap>
+  	<select id="selectById" resultMap="FurnitureVoMap" parameterType="FurnitureVo">
+		
+		select  a.furniture_id,a.room_id,a.apartment_id,b.room_name,c.rent_type,b.room_area,c.member_id,d.realname from furniture a,room b, apartment c ,member d 
+		<where>
+			a.room_id = b.room_id and a.apartment_id = c.apartment_id and c.member_id = d.member_id and a.public_flag!='1' 
+			<if test="apartmentId!=null and apartmentId!=''">
+				and a.apartment_id = #{apartmentId}
+			</if>
+			<if test="roomId!=null and roomId!=''">
+				and a.room_id = #{roomId}
+			</if>
+		</where> 
+	</select>
+	<select id="selectPubById" resultMap="FurnitureVoMap" parameterType="FurnitureVo">
+		select  a.furniture_id,a.room_id,a.apartment_id,c.rent_type,c.area,c.member_id,d.realname from furniture a,apartment c,member d 
+		<where>
+			 a.apartment_id = c.apartment_id and c.member_id = d.member_id and a.public_flag = '1' 
+			<if test="apartmentId!=null and apartmentId!=''">
+				and a.apartment_id = #{apartmentId}
+			</if>
+			<if test="roomId!=null and roomId!=''">
+				and a.room_id = #{roomId}
+			</if>
+		</where> 
+	</select>
+</mapper>

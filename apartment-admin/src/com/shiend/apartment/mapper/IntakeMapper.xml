@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shiend.apartment.mapper.IntakeMapper">
+	<resultMap id="IntakeVoMap" type="com.shiend.apartment.vo.IntakeVo" >
+   	 <id column="intake_id" property="intakeId"  />
+   	 <result column="room_id" property="roomId"  />
+   	 <result column="householder_id" property="householderId"  />
+  	 <result column="rent_status" property="rentStatus" />
+  	 <result column="rent_time" property="rentTime" />
+  	 <result column="pay_status" property="payStatus" />
+  	 <result column="money" property="money" />
+  	 <result column="intake_time" property="intakeTime" />
+  	 <result column="leave_time" property="leaveTime" />
+  	 <result column="compact_id" property="compactId" />
+  	 <result column="rent_id" property="rentId" />
+  	 <result column="next_pay_time" property="nextPayTime" />
+  	 <result column="realname" property="realname" />
+  	 <result column="card_id" property="cardId" />
+  	 <result column="water_num" property="waterNum" />
+  	 <result column="power_num" property="powerNum" />
+  	 <result column="cash_money" property="cashMoney" />
+  	</resultMap> 
+  	<select id="selectIntakeInfoList" resultMap="IntakeVoMap" parameterType="IntakeVo">
+		
+		select  a.intake_id,a.room_id,a.householder_id,a.rent_status,
+		a.pay_status,a.money,a.compact_id,a.next_pay_time,a.rent_id,b.realname,b.card_id from intake a,member b
+		<where>
+			a.rent_id = b.member_id 
+			<if test="realname!=null and realname!=''">
+				and b.realname like '${realname}%' 
+			</if>
+			<if test="cardId!=null and cardId!=''">
+				and b.card_id like '${cardId}%' 
+			</if>
+		</where> 
+	</select>
+	<select id="selectPayList" resultMap="IntakeVoMap" parameterType="IntakeVo">
+		
+		select  a.intake_id,a.room_id,a.householder_id,a.rent_time,
+		a.pay_status,a.money,a.compact_id,a.next_pay_time,a.intake_time,a.rent_id,b.realname,b.card_id from intake a,member b
+		<where>
+			a.rent_id = b.member_id and a.rent_status = '1'  
+			<if test="realname!=null and realname!=''"> 
+				and b.realname like '${realname}%' 
+			</if>
+			<if test="cardId!=null and cardId!=''">
+				and b.card_id like '${cardId}%' 
+			</if>
+		</where> 
+	</select>
+	
+	<select id="YQEchart" resultType="Integer">
+		select COUNT(*) from intake where  SUBSTR(NOW(),1,10)>SUBSTR(next_pay_time,1,10) 
+	</select>
+	<select id="DJFEchart" resultType="Integer">
+		
+		select COUNT(*) from intake where  SUBSTR(ADDDATE(NOW(),INTERVAL 5 DAY),1,10) > SUBSTR(next_pay_time,1,10)  and SUBSTR(next_pay_time,1,10)>=SUBSTR(NOW(),1,10) 
+		
+	</select>
+	<select id="YJFEchart" resultType="Integer">
+		select COUNT(*) from intake where SUBSTR(next_pay_time,1,10)>=SUBSTR(ADDDATE(NOW(),INTERVAL 5 DAY),1,10) 
+		
+	</select>
+</mapper>

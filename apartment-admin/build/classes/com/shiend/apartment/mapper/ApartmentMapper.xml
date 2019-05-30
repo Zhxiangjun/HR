@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.shiend.apartment.mapper.ApartmentMapper">
+	<resultMap id="ApartmentVoMap" type="com.shiend.apartment.vo.ApartmentVo" >
+		 <id column="apartment_id" property="apartmentId"  />
+   		 <result column="member_id" property="memberId"  />
+   		 <result column="rent_type" property="rentType"  />
+   		 <result column="apartment_type" property="apartmentType"  />
+   		 <result column="city" property="city"  />
+   		 <result column="location" property="location"  />
+   		 <result column="area" property="area"  />
+   		 <result column="floor" property="floor"  />
+   		 <result column="picture" property="picture"  />
+   		 <result column="direction" property="direction"  />
+   			 <collection property="member" ofType="com.shiend.apartment.pojo.Member">
+				<id column="member_id" property="memberId"/>
+				<result column="member_account" property="memberAccount"/>
+				<result column="realname" property="realname"/>
+				<result column="member_sex" property="memberSex"/>
+				<result column="card_id" property="cardId"/>
+			</collection>
+			<collection property="rooms" ofType="com.shiend.apartment.pojo.Room">
+				<id column="room_id" property="roomId"/>
+				<result column="apartment_id" property="apartmentId"/>
+				<result column="room_name" property="roomName"/>
+				<result column="room_area" property="roomArea"/>
+				<result column="status" property="status"/>
+				<result column="up_status" property="upStatus"/>
+			</collection>
+	</resultMap>
+	
+	<select id="selectApartmentList" resultMap="ApartmentVoMap" parameterType="ApartmentVo">
+		select a.apartment_id,a.city,a.location,a.apartment_type,a.area,a.floor,a.direction,a.rent_type,b.realname,b.card_id from apartment a,member b
+		<where>
+			  a.member_id = b.member_id
+			<if test="apartmentId!=null and apartmentId!=''">
+				and a.apartment_id = #{apartmentId}
+			</if>
+			<if test="rentType!=null and rentType!=''">
+				and a.rentType = #{rentType}
+			</if>
+			<if test="realname!=null and realname.trim()!=''">
+				and b.realname like '${realname}%'
+			</if>
+			<if test="city!=null and city.trim()!=''">
+				and a.city like '${city}%'
+			</if>
+			<if test="location!=null and location.trim()!=''">
+				and a.location like '${location}%'
+			</if>
+		</where>
+	</select> 
+	<!-- c.room_id,c.room_name,c.room_area,c.status,c.up_status -->
+	<select id="detailInfo" resultMap="ApartmentVoMap" parameterType="Integer">
+		select a.apartment_id,a.city,a.location,a.apartment_type,a.area,a.floor,a.direction,a.rent_type,b.realname,b.card_id 
+		 from apartment a,member b 
+		<where>
+			  a.member_id = b.member_id  and a.apartment_id = #{id}
+		</where>
+	</select> 
+</mapper>

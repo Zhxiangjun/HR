@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+<!-- 数据库连接池
+	加载外部资源文件
+	sqlSessionFactory
+	批量加载mapper接口的代理bean
+	批量加载service
+	事务管理 -->
+	
+	
+	<!-- 加载外部资源文件 -->
+	<context:property-placeholder location="classpath:db.properties"/>
+	
+	<!-- 配置数据库连接池 -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+		<property name="driverClass" value="${jdbc.driver}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="user" value="${jdbc.username}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+	</bean>
+	
+	<!-- 配置sqlSessionFactory -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<!-- 注入数据源 -->
+		<property name="dataSource" ref="dataSource"></property>
+		<!-- 配置mybatis全局配置文件 -->
+		<property name="configLocation" value="classpath:mybatis.xml"></property>
+		<!-- 别名 -->
+		<property name="typeAliasesPackage" value="com.shiend.apartment.pojo"></property>
+		<property name="plugins">
+  			<array>
+    	 	 <!-- pagehelper分页配置。 -->
+     	 	<bean class="com.github.pagehelper.PageInterceptor">
+       	 		<property name="properties">
+         			 <value>
+            			 helperDialect=mysql
+            			 offsetAsPageNum=true
+            			 <!-- 防止出现小于第一页，大于最后一页的异常情况出现。当该参数设置为 true 时，pageNum<=0 时会查询第一页， pageNum>pages（超过总数时），会查询最后一页 -->	
+            			 reasonable=true
+          			</value>
+       			</property>
+     		</bean>
+			<bean class="com.github.abel533.mapperhelper.MapperInterceptor">
+				<property name="properties">
+	 				 <value>
+	 					<!-- 主键自增回写方法,默认值MYSQL -->
+            		     IDENTITY=MYSQL
+            		     mappers=com.github.abel533.mapper.Mapper
+        		    </value>
+      		   </property>
+    		</bean>
+    		</array>
+		</property> 
+	</bean>
+	
+	<!-- 扫描批量加载mapper接口的代理bean -->
+	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+		<!-- 配置mapper接口包路径 -->
+		<property name="basePackage" value="com.shiend.apartment.mapper"></property>
+	</bean>
+	
+	<!-- 扫描批量加载service的bean -->
+	<context:component-scan base-package="com.shiend.apartment.service"></context:component-scan>
+	
+	<!-- 配置事务管理器 -->
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<!-- 注入数据源 -->
+		<property name="dataSource" ref="dataSource"></property>
+	</bean>
+	<!-- 事务的注解驱动 -->
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
+
+
+

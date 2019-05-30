@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.shiend.apartment.mapper.RoomMapper">
+	<!-- RoomVo query-->
+	<resultMap id="RoomVoMap" type="com.shiend.apartment.vo.RoomVo" >
+   	 <id column="room_id" property="roomId"  />
+   	 <result column="apartment_id" property="apartmentId"  />
+   	 <result column="room_name" property="roomName"  />
+  	 <result column="room_area" property="roomArea" />
+  	 <result column="season_price" property="seasonPrice" />
+  	 <result column="month_price" property="monthPrice" />
+  	 <result column="half_year_price" property="halfYearPrice" />
+  	 <result column="year_price" property="yearPrice" />
+  	 <result column="create_time" property="createTime" />
+  	 <result column="status" property="status" />
+  	 <result column="pass_time" property="passTime" />
+  	 <result column="up_status" property="upStatus" />
+  	 <result column="up_time" property="upTime" />
+  	 <result column="under_time" property="underTime" />
+		<collection property="apartments" ofType="com.shiend.apartment.pojo.Apartment">
+			<id column="apartment_id" property="apartmentId"/>
+			<result column="city" property="city"/>
+			<result column="location" property="location"/>
+			<result column="apartment_type" property="apartmentType"/>
+			<result column="rent_type" property="rentType"/>
+		</collection>
+ 	</resultMap>
+ 	
+ 	<!-- RoomDetailVo-->
+ 	
+ 	
+  	<select id="selectRoomList" resultMap="RoomVoMap" parameterType="RoomVo">
+		select a.room_id,a.apartment_id,a.room_name,a.room_area,a.create_time,a.status,a.pass_time,a.up_status,b.city,b.location,b.apartment_type,b.rent_type from room a,apartment b  
+		<where>
+			 a.apartment_id = b.apartment_id 
+			<if test="roomId!=null and roomId!=''">
+				and a.room_id = #{roomId}
+			</if>
+			<if test="apartmentId!=null and apartmentId!=''">
+				and a.apartment_id = #{apartmentId}
+			</if>
+			<if test="status!=null and status.trim()!=''">
+				and a.status = #{status}
+			</if>
+			<if test="createTime!=null and createTime.trim()!=''">
+				and a.create_time like '${createTime}%'
+			</if>
+			<if test="city!=null and city.trim()!=''">
+				and b.city like '${city}%'
+			</if>
+			<if test="location!=null and location.trim()!=''">
+				and b.location like '${location}%'
+			</if>
+		</where> 
+	</select>
+	<select id="selectUpList" resultMap="RoomVoMap" parameterType="RoomVo">
+		select a.room_id,a.apartment_id,a.room_name,a.room_area,a.create_time,a.status,a.pass_time,a.up_status,b.city,b.location,b.apartment_type,b.rent_type from room a,apartment b  
+		<where>
+			 a.apartment_id = b.apartment_id and a.status ='1' 
+			<if test="roomId!=null and roomId!=''">
+				and a.room_id = #{roomId}
+			</if>
+			<if test="apartmentId!=null and apartmentId!=''">
+				and a.apartment_id = #{apartmentId}
+			</if>
+		</where> 
+	</select>
+	
+	<select id="selectPriceList" resultMap="RoomVoMap" parameterType="RoomVo">
+		select a.room_id,a.apartment_id,a.room_name,a.pass_time,a.month_price,a.season_price,a.half_year_price,a.year_price,b.city,b.location,b.rent_type from room a,apartment b  
+		<where>
+			 a.apartment_id = b.apartment_id 
+			<if test="roomId!=null and roomId!=''">
+				and a.room_id = #{roomId}
+			</if>
+			<if test="apartmentId!=null and apartmentId!=''">
+				and a.apartment_id = #{apartmentId}
+			</if>
+			<if test="status!=null and status.trim()!=''">
+				and a.status = #{status}
+			</if>
+			<if test="rentType!=null and rentType!=''">
+				and b.rent_type = #{rentType}
+			</if>
+			<if test="city!=null and city.trim()!=''">
+				and b.city like '${city}%'
+			</if>
+			<if test="location!=null and location.trim()!=''">
+				and b.location like '${location}%'
+			</if>
+		</where> 
+	</select>
+	<select id="roomEchart" resultType="com.shiend.apartment.vo.TmpVo" >
+		select up_status AS xString,COUNT(*) AS yInteger from room GROUP BY up_status ORDER BY up_status
+	</select>
+</mapper>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper 
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.shiend.apartment.mapper.MemberMapper">
+	<!-- 批量删除 -->
+	<delete id="del">
+		delete from member where member_id in 
+		<foreach collection="array" item="id" open="(" separator="," close=")" >
+			#{id}
+		</foreach>
+	</delete>
+	
+	<select id="memberEchart" resultType="com.shiend.apartment.vo.TmpVo" parameterType="string">
+		SELECT
+		SUBSTRING(create_time, 1, 7) AS xString,
+		COUNT(*) AS yInteger
+		FROM	member
+		<where>
+			<if test="xString !=null and xString.trim()!=''">
+				create_time LIKE '${xString}%'
+				</if>
+		</where>
+		GROUP BY	SUBSTRING(create_time, 1, 7)
+		ORDER BY	SUBSTRING(create_time, 1, 7) ASC
+		
+	</select>
+</mapper>
